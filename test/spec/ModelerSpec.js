@@ -40,6 +40,7 @@ insertCSS('single-start-modeler-toolbar.css', `
     height: 100%;
     margin: 0;
     overflow: hidden;
+    background: #ffffff;
   }
 
   .single-start-host {
@@ -48,6 +49,10 @@ insertCSS('single-start-modeler-toolbar.css', `
     height: 100vh;
     margin: 0 !important;
     padding: 0 !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    outline: 0 !important;
+    background: #ffffff;
   }
 
   .single-start-host .test-container,
@@ -57,6 +62,10 @@ insertCSS('single-start-modeler-toolbar.css', `
     height: 100%;
     margin: 0;
     padding: 0;
+    border: 0 !important;
+    box-shadow: none !important;
+    outline: 0 !important;
+    background: #ffffff;
   }
 
   .single-start-shell {
@@ -119,6 +128,54 @@ insertCSS('single-start-modeler-toolbar.css', `
     width: 100%;
     height: 100%;
     min-height: 100vh;
+  }
+
+  .single-start-canvas .djs-container,
+  .single-start-canvas .djs-container > svg,
+  .single-start-canvas .djs-container > .viewport {
+    border: 0 !important;
+    outline: 0 !important;
+    box-shadow: none !important;
+  }
+
+  @media print {
+    html, body {
+      overflow: visible;
+      width: auto !important;
+      height: auto !important;
+    }
+
+    .single-start-toolbar,
+    .djs-palette,
+    .djs-context-pad,
+    .bjs-powered-by {
+      display: none !important;
+      visibility: hidden !important;
+    }
+
+    .single-start-shell,
+    .single-start-canvas,
+    .single-start-host,
+    .single-start-host .test-container,
+    .single-start-host .test-content-container {
+      position: static !important;
+      inset: auto !important;
+      width: 100% !important;
+      height: auto !important;
+      min-height: 0 !important;
+      max-width: none !important;
+      max-height: none !important;
+      overflow: visible !important;
+    }
+
+    .single-start-canvas .djs-container,
+    .single-start-canvas .djs-container > .viewport,
+    .single-start-canvas svg {
+      width: 100% !important;
+      height: auto !important;
+      max-height: none !important;
+      overflow: visible !important;
+    }
   }
 `);
 

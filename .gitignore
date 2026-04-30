@@ -5,3 +5,4 @@ lib/**/*.d.ts
 .idea
 *.iml
 .DS_Store
+.codex-npm-*
