@@ -73,8 +73,9 @@ insertCSS('single-start-modeler-toolbar.css', `
     bottom: 16px;
     z-index: 30;
     display: flex;
-    flex-direction: column;
-    align-items: stretch;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
     gap: 10px;
     padding: 12px;
     border: 1px solid #d0d7de;
@@ -106,6 +107,7 @@ insertCSS('single-start-modeler-toolbar.css', `
   }
 
   .single-start-toolbar .status {
+    flex-basis: 100%;
     color: #57606a;
     font-size: 12px;
     line-height: 1.3;
