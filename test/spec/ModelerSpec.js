@@ -18,7 +18,8 @@ import {
   setBpmnJS,
   clearBpmnJS,
   collectTranslations,
-  enableLogging
+  enableLogging,
+  insertCSS
 } from 'test/TestHelper';
 
 import {
@@ -30,6 +31,94 @@ import { getDi } from 'lib/util/ModelUtil';
 
 
 var singleStart = window.__env__ && window.__env__.SINGLE_START === 'modeler';
+
+var singleStartFileName = 'diagram.bpmn';
+
+insertCSS('single-start-modeler-toolbar.css', `
+  html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+  }
+
+  .single-start-host {
+    width: 100vw;
+    max-width: 100vw;
+    height: 100vh;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .single-start-host .test-container,
+  .single-start-host .test-content-container {
+    width: 100%;
+    max-width: none;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  .single-start-shell {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    min-height: 100vh;
+    overflow: hidden;
+  }
+
+  .single-start-toolbar {
+    position: absolute;
+    left: 16px;
+    bottom: 16px;
+    z-index: 30;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    padding: 12px;
+    border: 1px solid #d0d7de;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.96);
+    box-shadow: 0 10px 30px rgba(31, 35, 40, 0.12);
+    backdrop-filter: blur(8px);
+    font-family: "Segoe UI", sans-serif;
+  }
+
+  .single-start-toolbar button {
+    border: 1px solid #1f6feb;
+    background: #1f6feb;
+    color: #ffffff;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font: inherit;
+    cursor: pointer;
+  }
+
+  .single-start-toolbar button.secondary {
+    border-color: #d0d7de;
+    background: #ffffff;
+    color: #24292f;
+  }
+
+  .single-start-toolbar button:hover {
+    filter: brightness(0.97);
+  }
+
+  .single-start-toolbar .status {
+    color: #57606a;
+    font-size: 12px;
+    line-height: 1.3;
+    max-width: 180px;
+    word-break: break-word;
+  }
+
+  .single-start-canvas {
+    width: 100%;
+    height: 100%;
+    min-height: 100vh;
+  }
+`);
 
 
 describe('Modeler', function() {
@@ -46,6 +135,10 @@ describe('Modeler', function() {
 
     clearBpmnJS();
 
+    if (singleStart) {
+      setupSingleStartShell(container);
+    }
+
     modeler = new Modeler({
       container: container,
     });
@@ -53,6 +146,10 @@ describe('Modeler', function() {
     setBpmnJS(modeler);
 
     enableLogging(modeler, singleStart);
+
+    if (singleStart) {
+      setupSingleStartToolbar(modeler, container);
+    }
 
     return modeler.importXML(xml).then(function(result) {
       return { error: null, warnings: result.warnings, modeler: modeler };
@@ -951,6 +1048,164 @@ describe('Modeler', function() {
   });
 
 });
+
+function setupSingleStartShell(container) {
+  if (container.parentNode && container.parentNode.classList.contains('single-start-shell')) {
+    return;
+  }
+
+  var parentNode = container.parentNode,
+      testContainer = parentNode && parentNode.parentNode,
+      titleRow = testContainer && testContainer.querySelector('.title-row');
+
+  if (!parentNode) {
+    return;
+  }
+
+  document.documentElement.style.width = '100%';
+  document.documentElement.style.height = '100%';
+  document.documentElement.style.margin = '0';
+
+  document.body.style.width = '100%';
+  document.body.style.height = '100%';
+  document.body.style.margin = '0';
+  document.body.style.overflow = 'hidden';
+
+  parentNode.classList.add('single-start-host');
+  parentNode.style.position = 'absolute';
+  parentNode.style.inset = '0';
+  parentNode.style.width = '100%';
+  parentNode.style.height = '100%';
+  parentNode.style.margin = '0';
+  parentNode.style.padding = '0';
+
+  if (testContainer) {
+    testContainer.classList.add('single-start-host');
+    testContainer.style.position = 'fixed';
+    testContainer.style.inset = '0';
+    testContainer.style.width = '100vw';
+    testContainer.style.height = '100vh';
+    testContainer.style.border = '0';
+    testContainer.style.margin = '0';
+    testContainer.style.padding = '0';
+    testContainer.style.overflow = 'hidden';
+    testContainer.style.background = '#ffffff';
+  }
+
+  if (titleRow) {
+    titleRow.style.display = 'none';
+  }
+
+  var shell = document.createElement('div');
+  shell.className = 'single-start-shell';
+
+  parentNode.insertBefore(shell, container);
+  shell.appendChild(container);
+
+  container.classList.add('single-start-canvas');
+  container.style.width = '100%';
+  container.style.height = '100%';
+  container.style.margin = '0';
+  container.style.padding = '0';
+  container.style.display = 'block';
+}
+
+function setupSingleStartToolbar(modeler, container) {
+  var shell = container.parentNode;
+
+  if (!shell) {
+    return;
+  }
+
+  var existingToolbar = shell.querySelector('.single-start-toolbar');
+
+  if (existingToolbar) {
+    existingToolbar.remove();
+  }
+
+  var toolbar = document.createElement('div');
+  toolbar.className = 'single-start-toolbar';
+
+  var openButton = document.createElement('button');
+  openButton.className = 'secondary';
+  openButton.type = 'button';
+  openButton.textContent = 'Open BPMN';
+
+  var saveButton = document.createElement('button');
+  saveButton.type = 'button';
+  saveButton.textContent = 'Save BPMN';
+
+  var fileInput = document.createElement('input');
+  fileInput.type = 'file';
+  fileInput.accept = '.bpmn,.xml,text/xml,application/xml';
+  fileInput.style.display = 'none';
+
+  var status = document.createElement('div');
+  status.className = 'status';
+  status.textContent = singleStartFileName;
+
+  openButton.addEventListener('click', function() {
+    fileInput.click();
+  });
+
+  fileInput.addEventListener('change', function(event) {
+    var file = event.target.files && event.target.files[0];
+
+    if (!file) {
+      return;
+    }
+
+    var reader = new FileReader();
+
+    reader.onload = function(loadEvent) {
+      var xml = loadEvent.target.result;
+
+      modeler.importXML(xml).then(function() {
+        singleStartFileName = file.name || 'diagram.bpmn';
+        status.textContent = singleStartFileName;
+      }).catch(function(err) {
+        status.textContent = 'Import failed';
+        console.error(err);
+      });
+    };
+
+    reader.readAsText(file);
+    fileInput.value = '';
+  });
+
+  saveButton.addEventListener('click', function() {
+    modeler.saveXML({ format: true }).then(function(result) {
+      downloadFile(singleStartFileName, result.xml, 'application/xml;charset=utf-8');
+      status.textContent = singleStartFileName;
+    }).catch(function(err) {
+      status.textContent = 'Save failed';
+      console.error(err);
+    });
+  });
+
+  toolbar.appendChild(openButton);
+  toolbar.appendChild(saveButton);
+  toolbar.appendChild(fileInput);
+  toolbar.appendChild(status);
+
+  shell.insertBefore(toolbar, container);
+}
+
+function downloadFile(fileName, content, type) {
+  var blob = new Blob([ content ], { type: type });
+  var url = URL.createObjectURL(blob);
+  var link = document.createElement('a');
+
+  link.href = url;
+  link.download = fileName;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+
+  window.setTimeout(function() {
+    URL.revokeObjectURL(url);
+  }, 0);
+}
 
 
 // helpers //////////////
