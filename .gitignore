@@ -6,3 +6,4 @@ lib/**/*.d.ts
 *.iml
 .DS_Store
 .codex-npm-*
+.codex-index-*
