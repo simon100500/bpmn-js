@@ -1,5 +1,4 @@
 import { expectToBeAccessible } from '@bpmn-io/a11y';
-import { jsPDF } from 'jspdf';
 
 import Modeler from 'lib/Modeler';
 import Viewer from 'lib/Viewer';
@@ -1249,7 +1248,7 @@ function setupSingleStartToolbar(modeler, container) {
   });
 
   exportPdfButton.addEventListener('click', function() {
-    exportDiagramAsPdf(container).then(function() {
+    exportDiagramAsPdf(modeler).then(function() {
       status.textContent = getPdfFileName(singleStartFileName);
     }).catch(function(err) {
       status.textContent = 'PDF export failed';
@@ -1282,39 +1281,22 @@ function downloadFile(fileName, content, type) {
   }, 0);
 }
 
-function exportDiagramAsPdf(container) {
-  var svg = container.querySelector('.djs-container svg');
-  var viewport = svg && svg.querySelector('.viewport');
+function exportDiagramAsPdf(modeler) {
+  return modeler.saveSVG().then(function(result) {
+    var exportSvg = parseSvg(result.svg);
+    var viewBox = parseViewBox(exportSvg);
+    var bbox = {
+      x: viewBox[0],
+      y: viewBox[1],
+      width: viewBox[2],
+      height: viewBox[3]
+    };
 
-  if (!svg || !viewport) {
-    return Promise.reject(new Error('diagram SVG not found'));
-  }
+    sanitizeSvgForExport(exportSvg);
+    normalizeSvgForExport(exportSvg, bbox);
 
-  var bbox = viewport.getBBox();
-
-  if (!bbox || !bbox.width || !bbox.height) {
-    return Promise.reject(new Error('diagram bounds not available'));
-  }
-
-  var exportSvg = svg.cloneNode(true);
-
-  sanitizeSvgForExport(exportSvg);
-
-  exportSvg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
-  exportSvg.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
-  exportSvg.setAttribute('viewBox', [
-    bbox.x,
-    bbox.y,
-    bbox.width,
-    bbox.height
-  ].join(' '));
-  exportSvg.setAttribute('width', bbox.width);
-  exportSvg.setAttribute('height', bbox.height);
-  exportSvg.style.background = '#ffffff';
-
-  var serializedSvg = new XMLSerializer().serializeToString(exportSvg);
-
-  return createPdfFromSvg(serializedSvg, bbox).then(function(pdf) {
+    return createPdfFromSvg(exportSvg, bbox);
+  }).then(function(pdf) {
     pdf.save(getPdfFileName(singleStartFileName));
   });
 }
@@ -1339,99 +1321,132 @@ function sanitizeSvgForExport(svg) {
   });
 }
 
-function createPdfFromSvg(serializedSvg, bbox) {
-  var scale = 2;
-  var canvasWidth = Math.max(1, Math.ceil(bbox.width * scale));
-  var canvasHeight = Math.max(1, Math.ceil(bbox.height * scale));
-  var dataUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(serializedSvg);
+function normalizeSvgForExport(svg, bbox) {
+  svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+  svg.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
+  svg.setAttribute('viewBox', [
+    bbox.x,
+    bbox.y,
+    bbox.width,
+    bbox.height
+  ].join(' '));
+  svg.setAttribute('width', bbox.width);
+  svg.setAttribute('height', bbox.height);
+  svg.style.background = '#ffffff';
+  svg.style.fontFamily = 'Arial';
+}
 
-  return loadImage(dataUrl).then(function(image) {
-    var sourceCanvas = document.createElement('canvas');
-    sourceCanvas.width = canvasWidth;
-    sourceCanvas.height = canvasHeight;
+function createPdfFromSvg(exportSvg, bbox) {
+  return loadPdfDependencies().then(function(dependencies) {
+    return createPdfFromSvgWithDependencies(exportSvg, bbox, dependencies);
+  });
+}
 
-    var sourceContext = sourceCanvas.getContext('2d');
-    sourceContext.fillStyle = '#ffffff';
-    sourceContext.fillRect(0, 0, canvasWidth, canvasHeight);
-    sourceContext.drawImage(image, 0, 0, canvasWidth, canvasHeight);
+function createPdfFromSvgWithDependencies(exportSvg, bbox, dependencies) {
+  var jsPDF = dependencies.jsPDF;
+  var PX_TO_PT = 0.75;
+  var margin = 18;
+  var pageWidth = Math.max(72, bbox.width * PX_TO_PT + margin * 2);
+  var pageHeight = Math.max(72, bbox.height * PX_TO_PT + margin * 2);
+  var orientation = pageWidth >= pageHeight ? 'landscape' : 'portrait';
 
-    var orientation = bbox.width >= bbox.height ? 'landscape' : 'portrait';
-    var pdf = new jsPDF({
-      orientation: orientation,
-      unit: 'pt',
-      format: 'a4',
-      compress: true
+  var pdf = new jsPDF({
+    orientation: orientation,
+    unit: 'pt',
+    format: [ pageWidth, pageHeight ],
+    compress: true
+  });
+
+  return ensurePdfFont(pdf, dependencies.arialTtfUrl).then(function() {
+    pdf.setFont('Arial', 'normal');
+
+    return dependencies.svg2pdf(exportSvg, pdf, {
+      xOffset: margin,
+      yOffset: margin,
+      scale: PX_TO_PT
     });
-
-    var pageWidth = pdf.internal.pageSize.getWidth();
-    var pageHeight = pdf.internal.pageSize.getHeight();
-    var margin = 24;
-    var targetWidth = pageWidth - margin * 2;
-    var targetHeight = pageHeight - margin * 2;
-    var renderedHeight = targetWidth * (bbox.height / bbox.width);
-    var pageCount = Math.max(1, Math.ceil(renderedHeight / targetHeight));
-    var sliceHeightPx = sourceCanvas.height / pageCount;
-
-    for (var i = 0; i < pageCount; i++) {
-      if (i > 0) {
-        pdf.addPage('a4', orientation);
-      }
-
-      var isLastPage = i === pageCount - 1;
-      var currentSliceHeightPx = isLastPage
-        ? sourceCanvas.height - Math.round(sliceHeightPx * i)
-        : Math.round(sliceHeightPx);
-      var currentRenderedHeight = targetWidth * ((currentSliceHeightPx / scale) / bbox.width);
-
-      var sliceCanvas = document.createElement('canvas');
-      sliceCanvas.width = sourceCanvas.width;
-      sliceCanvas.height = currentSliceHeightPx;
-
-      var sliceContext = sliceCanvas.getContext('2d');
-      sliceContext.fillStyle = '#ffffff';
-      sliceContext.fillRect(0, 0, sliceCanvas.width, sliceCanvas.height);
-      sliceContext.drawImage(
-        sourceCanvas,
-        0,
-        Math.round(sliceHeightPx * i),
-        sourceCanvas.width,
-        currentSliceHeightPx,
-        0,
-        0,
-        sliceCanvas.width,
-        sliceCanvas.height
-      );
-
-      pdf.addImage(
-        sliceCanvas.toDataURL('image/png'),
-        'PNG',
-        margin,
-        margin,
-        targetWidth,
-        currentRenderedHeight,
-        undefined,
-        'FAST'
-      );
-    }
-
+  }).then(function() {
     return pdf;
   });
 }
 
-function loadImage(src) {
-  return new Promise(function(resolve, reject) {
-    var image = new Image();
+function loadPdfDependencies() {
+  return Promise.resolve().then(function() {
+    var jsPdfModule = require('jspdf');
+    var svgToPdfModule = require('svg2pdf.js');
+    var arialTtfUrl = require('../assets/fonts/arial.ttf');
 
-    image.onload = function() {
-      resolve(image);
+    return {
+      jsPDF: jsPdfModule.jsPDF,
+      svg2pdf: svgToPdfModule.svg2pdf,
+      arialTtfUrl: arialTtfUrl.default || arialTtfUrl
     };
-
-    image.onerror = function(err) {
-      reject(err || new Error('failed to load image'));
-    };
-
-    image.src = src;
   });
+}
+
+function ensurePdfFont(pdf, arialTtfUrl) {
+  if (typeof pdf.addFileToVFS !== 'function' || typeof pdf.addFont !== 'function') {
+    return Promise.reject(new Error('jsPDF font API unavailable'));
+  }
+
+  return fetch(arialTtfUrl)
+    .then(function(response) {
+      if (!response.ok) {
+        throw new Error('failed to load PDF font: ' + response.status);
+      }
+
+      return response.arrayBuffer();
+    })
+    .then(function(buffer) {
+      var fontFileName = 'arial.ttf';
+      var fontData = arrayBufferToBase64(buffer);
+      var hasFontInVfs = typeof pdf.existsFileInVFS === 'function'
+        ? pdf.existsFileInVFS(fontFileName)
+        : false;
+
+      if (!hasFontInVfs) {
+        pdf.addFileToVFS(fontFileName, fontData);
+      }
+
+      if (!pdf.getFontList().Arial) {
+        pdf.addFont(fontFileName, 'Arial', 'normal', 400, 'Identity-H');
+      }
+    });
+}
+
+function arrayBufferToBase64(buffer) {
+  var bytes = new Uint8Array(buffer);
+  var chunkSize = 0x8000;
+  var binary = '';
+
+  for (var i = 0; i < bytes.length; i += chunkSize) {
+    var chunk = bytes.subarray(i, i + chunkSize);
+    binary += String.fromCharCode.apply(null, chunk);
+  }
+
+  return btoa(binary);
+}
+
+function parseSvg(svgString) {
+  var parser = new DOMParser();
+  var document = parser.parseFromString(svgString, 'image/svg+xml');
+  var svg = document.documentElement;
+
+  if (!svg || svg.nodeName.toLowerCase() !== 'svg') {
+    throw new Error('exported SVG is invalid');
+  }
+
+  return svg;
+}
+
+function parseViewBox(svg) {
+  var viewBox = (svg.getAttribute('viewBox') || '').trim().split(/\s+/).map(Number);
+
+  if (viewBox.length !== 4 || viewBox.some(function(value) { return Number.isNaN(value); })) {
+    throw new Error('exported SVG viewBox is invalid');
+  }
+
+  return viewBox;
 }
 
 function getPdfFileName(fileName) {
