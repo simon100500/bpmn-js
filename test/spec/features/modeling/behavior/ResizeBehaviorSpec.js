@@ -467,6 +467,33 @@ describe('features/modeling - resize behavior', function() {
   });
 
 
+  describe('activity', function() {
+
+    var diagramXML = require('./ResizeBehavior.textAnnotation.bpmn');
+
+    beforeEach(bootstrapModeler(diagramXML, { modules: testModules }));
+
+
+    it('should set minimum dimensions', inject(function(dragging, elementRegistry, resize) {
+
+      // given
+      var task = elementRegistry.get('Task');
+
+      // when
+      resize.activate(canvasEvent({ x: 0, y: 0 }), task, 'se');
+
+      dragging.move(canvasEvent({ x: -400, y: -400 }));
+
+      dragging.end();
+
+      // then
+      expect(task.width).to.equal(100);
+      expect(task.height).to.equal(80);
+    }));
+
+  });
+
+
   describe('text annotation', function() {
 
     var diagramXML = require('./ResizeBehavior.textAnnotation.bpmn');

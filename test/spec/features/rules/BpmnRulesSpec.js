@@ -1943,6 +1943,31 @@ describe('features/modeling/rules - BpmnRules', function() {
   });
 
 
+  describe('activities', function() {
+
+    var testXML = require('./BpmnRules.process.bpmn');
+
+    beforeEach(bootstrapModeler(testXML, { modules: testModules }));
+
+    describe('should resize', function() {
+
+      it('Task', inject(function(bpmnRules, elementRegistry) {
+
+        // given
+        var taskElement = elementRegistry.get('Task');
+
+        // when
+        var canResize = bpmnRules.canResize(taskElement);
+
+        // then
+        expect(canResize).to.be.true;
+      }));
+
+    });
+
+  });
+
+
   describe('lanes', function() {
 
     var testXML = require('./BpmnRules.collaboration-lanes.bpmn');
