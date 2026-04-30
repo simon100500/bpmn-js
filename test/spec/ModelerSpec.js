@@ -1,4 +1,5 @@
 import { expectToBeAccessible } from '@bpmn-io/a11y';
+import { jsPDF } from 'jspdf';
 
 import Modeler from 'lib/Modeler';
 import Viewer from 'lib/Viewer';
@@ -1194,6 +1195,11 @@ function setupSingleStartToolbar(modeler, container) {
   saveButton.type = 'button';
   saveButton.textContent = 'Save BPMN';
 
+  var exportPdfButton = document.createElement('button');
+  exportPdfButton.className = 'secondary';
+  exportPdfButton.type = 'button';
+  exportPdfButton.textContent = 'Export PDF';
+
   var fileInput = document.createElement('input');
   fileInput.type = 'file';
   fileInput.accept = '.bpmn,.xml,text/xml,application/xml';
@@ -1242,8 +1248,18 @@ function setupSingleStartToolbar(modeler, container) {
     });
   });
 
+  exportPdfButton.addEventListener('click', function() {
+    exportDiagramAsPdf(container).then(function() {
+      status.textContent = getPdfFileName(singleStartFileName);
+    }).catch(function(err) {
+      status.textContent = 'PDF export failed';
+      console.error(err);
+    });
+  });
+
   toolbar.appendChild(openButton);
   toolbar.appendChild(saveButton);
+  toolbar.appendChild(exportPdfButton);
   toolbar.appendChild(fileInput);
   toolbar.appendChild(status);
 
@@ -1264,6 +1280,168 @@ function downloadFile(fileName, content, type) {
   window.setTimeout(function() {
     URL.revokeObjectURL(url);
   }, 0);
+}
+
+function exportDiagramAsPdf(container) {
+  var svg = container.querySelector('.djs-container svg');
+  var viewport = svg && svg.querySelector('.viewport');
+
+  if (!svg || !viewport) {
+    return Promise.reject(new Error('diagram SVG not found'));
+  }
+
+  var bbox = viewport.getBBox();
+
+  if (!bbox || !bbox.width || !bbox.height) {
+    return Promise.reject(new Error('diagram bounds not available'));
+  }
+
+  var exportSvg = svg.cloneNode(true);
+
+  sanitizeSvgForExport(exportSvg);
+
+  exportSvg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+  exportSvg.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
+  exportSvg.setAttribute('viewBox', [
+    bbox.x,
+    bbox.y,
+    bbox.width,
+    bbox.height
+  ].join(' '));
+  exportSvg.setAttribute('width', bbox.width);
+  exportSvg.setAttribute('height', bbox.height);
+  exportSvg.style.background = '#ffffff';
+
+  var serializedSvg = new XMLSerializer().serializeToString(exportSvg);
+
+  return createPdfFromSvg(serializedSvg, bbox).then(function(pdf) {
+    pdf.save(getPdfFileName(singleStartFileName));
+  });
+}
+
+function sanitizeSvgForExport(svg) {
+  var selectors = [
+    '.djs-palette',
+    '.djs-resizer',
+    '.djs-bendpoint',
+    '.djs-segment-dragger',
+    '.djs-context-pad',
+    '.djs-outline',
+    '.djs-hit',
+    '.djs-element-hidden',
+    '.bjs-powered-by'
+  ];
+
+  selectors.forEach(function(selector) {
+    svg.querySelectorAll(selector).forEach(function(node) {
+      node.remove();
+    });
+  });
+}
+
+function createPdfFromSvg(serializedSvg, bbox) {
+  var scale = 2;
+  var canvasWidth = Math.max(1, Math.ceil(bbox.width * scale));
+  var canvasHeight = Math.max(1, Math.ceil(bbox.height * scale));
+  var dataUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(serializedSvg);
+
+  return loadImage(dataUrl).then(function(image) {
+    var sourceCanvas = document.createElement('canvas');
+    sourceCanvas.width = canvasWidth;
+    sourceCanvas.height = canvasHeight;
+
+    var sourceContext = sourceCanvas.getContext('2d');
+    sourceContext.fillStyle = '#ffffff';
+    sourceContext.fillRect(0, 0, canvasWidth, canvasHeight);
+    sourceContext.drawImage(image, 0, 0, canvasWidth, canvasHeight);
+
+    var orientation = bbox.width >= bbox.height ? 'landscape' : 'portrait';
+    var pdf = new jsPDF({
+      orientation: orientation,
+      unit: 'pt',
+      format: 'a4',
+      compress: true
+    });
+
+    var pageWidth = pdf.internal.pageSize.getWidth();
+    var pageHeight = pdf.internal.pageSize.getHeight();
+    var margin = 24;
+    var targetWidth = pageWidth - margin * 2;
+    var targetHeight = pageHeight - margin * 2;
+    var renderedHeight = targetWidth * (bbox.height / bbox.width);
+    var pageCount = Math.max(1, Math.ceil(renderedHeight / targetHeight));
+    var sliceHeightPx = sourceCanvas.height / pageCount;
+
+    for (var i = 0; i < pageCount; i++) {
+      if (i > 0) {
+        pdf.addPage('a4', orientation);
+      }
+
+      var isLastPage = i === pageCount - 1;
+      var currentSliceHeightPx = isLastPage
+        ? sourceCanvas.height - Math.round(sliceHeightPx * i)
+        : Math.round(sliceHeightPx);
+      var currentRenderedHeight = targetWidth * ((currentSliceHeightPx / scale) / bbox.width);
+
+      var sliceCanvas = document.createElement('canvas');
+      sliceCanvas.width = sourceCanvas.width;
+      sliceCanvas.height = currentSliceHeightPx;
+
+      var sliceContext = sliceCanvas.getContext('2d');
+      sliceContext.fillStyle = '#ffffff';
+      sliceContext.fillRect(0, 0, sliceCanvas.width, sliceCanvas.height);
+      sliceContext.drawImage(
+        sourceCanvas,
+        0,
+        Math.round(sliceHeightPx * i),
+        sourceCanvas.width,
+        currentSliceHeightPx,
+        0,
+        0,
+        sliceCanvas.width,
+        sliceCanvas.height
+      );
+
+      pdf.addImage(
+        sliceCanvas.toDataURL('image/png'),
+        'PNG',
+        margin,
+        margin,
+        targetWidth,
+        currentRenderedHeight,
+        undefined,
+        'FAST'
+      );
+    }
+
+    return pdf;
+  });
+}
+
+function loadImage(src) {
+  return new Promise(function(resolve, reject) {
+    var image = new Image();
+
+    image.onload = function() {
+      resolve(image);
+    };
+
+    image.onerror = function(err) {
+      reject(err || new Error('failed to load image'));
+    };
+
+    image.src = src;
+  });
+}
+
+function getPdfFileName(fileName) {
+  var baseName = fileName || 'diagram.bpmn';
+
+  if (/\.[^.]+$/.test(baseName)) {
+    baseName = baseName.replace(/\.[^.]+$/, '');
+  }
+
+  return baseName + '.pdf';
 }
 
 
