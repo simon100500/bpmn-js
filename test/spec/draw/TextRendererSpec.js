@@ -49,6 +49,27 @@ describe('draw - TextRenderer', function() {
     }));
 
 
+    it('should preserve external label width for reflow', inject(function(textRenderer) {
+
+      // given
+      var bounds = {
+        x: 0,
+        y: 0,
+        width: 180,
+        height: 30
+      };
+
+      // when
+      var layoutedBounds = textRenderer.getExternalLabelBounds(
+        bounds,
+        'FOO BAR BAZ QUUX QUUZ'
+      );
+
+      // then
+      expect(layoutedBounds.width).to.equal(180);
+    }));
+
+
     it('should expose #getTextAnnotationBounds', inject(function(textRenderer) {
 
       // given

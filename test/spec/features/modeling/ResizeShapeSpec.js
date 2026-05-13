@@ -40,6 +40,23 @@ describe('features/modeling - resize shape', function() {
     }));
 
 
+    it('should resize Group', inject(function(elementRegistry, modeling) {
+
+      // given
+      var group = elementRegistry.get('Group_1');
+
+      // when
+      modeling.resizeShape(group, { x: 264, y: 42, width: 550, height: 420 });
+
+      // then
+      expect(group).to.have.dimensions({
+        width: 550,
+        height: 420
+      });
+
+    }));
+
+
     describe('businessObject', function() {
 
       it('should update bounds', inject(function(elementRegistry, modeling) {
@@ -147,6 +164,123 @@ describe('features/modeling - resize shape', function() {
 
       // then
       expect(getPosition(boundaryEvent)).to.jsonEqual(originalPosition);
+    }));
+
+  });
+
+
+  describe('data elements', function() {
+
+    var diagramXML = require('../../../fixtures/bpmn/collaboration-data-items.bpmn');
+
+    beforeEach(bootstrapModeler(diagramXML, { modules: testModules }));
+
+    it('should resize DataObjectReference', inject(function(elementRegistry, modeling) {
+
+      // given
+      var dataObjectReference = elementRegistry.get('DataObjectReference_1');
+
+      // when
+      modeling.resizeShape(dataObjectReference, {
+        x: dataObjectReference.x,
+        y: dataObjectReference.y,
+        width: 120,
+        height: dataObjectReference.height
+      });
+
+      // then
+      expect(dataObjectReference.width).to.equal(120);
+      expect(getDi(dataObjectReference).bounds.width).to.equal(120);
+    }));
+
+
+    it('should resize DataStoreReference', inject(function(elementRegistry, modeling) {
+
+      // given
+      var dataStoreReference = elementRegistry.get('DataStoreReference_5');
+
+      // when
+      modeling.resizeShape(dataStoreReference, {
+        x: dataStoreReference.x,
+        y: dataStoreReference.y,
+        width: 140,
+        height: dataStoreReference.height
+      });
+
+      // then
+      expect(dataStoreReference.width).to.equal(140);
+      expect(getDi(dataStoreReference).bounds.width).to.equal(140);
+    }));
+
+  });
+
+
+  describe('external labels', function() {
+
+    beforeEach(bootstrapModeler(diagramXML, { modules: testModules }));
+
+    it('should resize StartEvent label', inject(function(elementRegistry, modeling) {
+
+      // given
+      var startEventLabel = elementRegistry.get('StartEvent_1_label');
+
+      // when
+      modeling.resizeShape(startEventLabel, {
+        x: startEventLabel.x,
+        y: startEventLabel.y,
+        width: 140,
+        height: startEventLabel.height
+      });
+
+      // then
+      expect(startEventLabel.width).to.equal(140);
+      expect(getDi(startEventLabel.labelTarget).label.bounds.width).to.equal(140);
+    }));
+
+
+    it('should resize EndEvent label', inject(function(elementRegistry, modeling) {
+
+      // given
+      var endEventLabel = elementRegistry.get('EndEvent_1_label');
+
+      // when
+      modeling.resizeShape(endEventLabel, {
+        x: endEventLabel.x,
+        y: endEventLabel.y,
+        width: 150,
+        height: endEventLabel.height
+      });
+
+      // then
+      expect(endEventLabel.width).to.equal(150);
+      expect(getDi(endEventLabel.labelTarget).label.bounds.width).to.equal(150);
+    }));
+
+  });
+
+
+  describe('group labels', function() {
+
+    var diagramXML = require('./UpdateLabel.bpmn');
+
+    beforeEach(bootstrapModeler(diagramXML, { modules: testModules }));
+
+    it('should resize Group label', inject(function(elementRegistry, modeling) {
+
+      // given
+      var groupLabel = elementRegistry.get('Group_1_label');
+
+      // when
+      modeling.resizeShape(groupLabel, {
+        x: groupLabel.x,
+        y: groupLabel.y,
+        width: 180,
+        height: groupLabel.height
+      });
+
+      // then
+      expect(groupLabel.width).to.equal(180);
+      expect(getDi(groupLabel.labelTarget).label.bounds.width).to.equal(180);
     }));
 
   });
