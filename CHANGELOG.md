@@ -6,6 +6,145 @@ All notable changes to [bpmn-js](https://github.com/bpmn-io/bpmn-js) are documen
 
 ___Note:__ Yet to be released changes appear here._
 
+## [17.3.0](https://github.com/simon100500/bpmn-js/compare/v18.13.0...v17.3.0) (2026-05-13)
+
+
+### ⚠ BREAKING CHANGES
+
+* update to `bpmn-moddle@9`
+* Migrated to `diagram-js@14` which removes touch interaction module, and dependency on unsupported `hammerjs` package. If you rely on touch interaction, you need to support touch interaction on your own.
+* update to diagram-js@13.0.0
+* 
+
+### deps
+
+* update to `bpmn-moddle@9` ([3e2a765](https://github.com/simon100500/bpmn-js/commit/3e2a765bf40dedd7e788dd726efb0c69fd70ddc7))
+* update to diagram-js@13.0.0 ([afb05ea](https://github.com/simon100500/bpmn-js/commit/afb05ea0037fb67b16ece019e514b68e0d017e63))
+
+
+### Features
+
+* activate direct editing for new activities and events ([fb83a8d](https://github.com/simon100500/bpmn-js/commit/fb83a8d6eedb8516638a5cf6fda23b031971f896))
+* allow copying data object references ([108bdf8](https://github.com/simon100500/bpmn-js/commit/108bdf8886979dd119ab7369b505f7edeca16dee))
+* allow text annotations for message flows ([e8f343a](https://github.com/simon100500/bpmn-js/commit/e8f343a2e83fee19fceb961b0ac5e6ef03746533)), closes [#2281](https://github.com/simon100500/bpmn-js/issues/2281)
+* allow to add to selection via lasso tool ([9b2b6a6](https://github.com/simon100500/bpmn-js/commit/9b2b6a65d82117966e6b0da6537a1424bab7d6f2)), closes [#2053](https://github.com/simon100500/bpmn-js/issues/2053)
+* allow to create child elements from the context pad ([cf8a48e](https://github.com/simon100500/bpmn-js/commit/cf8a48ecd1cc183acd1609db19b56a47fef8268d))
+* allow to replace between variants of typed events ([0a7c5f3](https://github.com/simon100500/bpmn-js/commit/0a7c5f38231358014aa3dfc96bbcef5b77cc186a))
+* allow to type services and events ([edfec4c](https://github.com/simon100500/bpmn-js/commit/edfec4cdc855e35a1b9919df85b3d7ee47419873)), closes [#2121](https://github.com/simon100500/bpmn-js/issues/2121)
+* auto-place elements vertically ([d9b8bfd](https://github.com/simon100500/bpmn-js/commit/d9b8bfd5935439420f4a9cea7f4f386587e7f821)), closes [#2110](https://github.com/simon100500/bpmn-js/issues/2110)
+* **bpmn-renderer:** render vertical pools and lanes ([c93b2cf](https://github.com/simon100500/bpmn-js/commit/c93b2cfa1020e5d939cbacb592361083a4c19438))
+* **color-picker:** implement color picker feature with context pad and popup menu ([971693d](https://github.com/simon100500/bpmn-js/commit/971693d0c8b7bae11ec8c464d17a2806340c09ac))
+* **context-pad:** sentence case titles ([1c49a1e](https://github.com/simon100500/bpmn-js/commit/1c49a1e8d397013537f43ce9772b2890f0f2e13d))
+* copy `isCollection` property of data objects ([55d11ea](https://github.com/simon100500/bpmn-js/commit/55d11eaf80ff7327156195f8df537685327ce62c))
+* create ad-hoc sub process via replace menu ([d9b908b](https://github.com/simon100500/bpmn-js/commit/d9b908b0318432b40f91b5da7a22b1c369f98ae8))
+* disable direct editing for plain start/end events ([70285b7](https://github.com/simon100500/bpmn-js/commit/70285b7b942e13ac2e8fa41a8be4210a6adf286c))
+* do not translate import errors ([ea9318b](https://github.com/simon100500/bpmn-js/commit/ea9318b3d59f7adca4f29fd5fc0559243d3cb065))
+* do not translate technical errors ([160444e](https://github.com/simon100500/bpmn-js/commit/160444eae80ceba94ff63264fb50ee30863fdaaf))
+* edit vertical pool/lane labels ([29baeb1](https://github.com/simon100500/bpmn-js/commit/29baeb19dd31c4662d5aa788a420a6a9ee29ca0d))
+* handle adding vertical lanes ([6e92713](https://github.com/simon100500/bpmn-js/commit/6e92713cb904ceff905c44e218e55407710767cb))
+* handle resizing of vertical lanes ([0a706be](https://github.com/simon100500/bpmn-js/commit/0a706beb19caa5317db89f9a204a15a3d248373f))
+* handle splitting vertical lanes ([e263bbb](https://github.com/simon100500/bpmn-js/commit/e263bbbfd418294b0fd3b84750fc813a659f9299))
+* improve handling of compensation association ([3dbaf50](https://github.com/simon100500/bpmn-js/commit/3dbaf503a55703e966b0dae5873d5c5b025d8a4f))
+* **label-editing:** remove background for embedded labels ([384fad5](https://github.com/simon100500/bpmn-js/commit/384fad529cdddc3a76e5cb16f8846d24dfc6fafd))
+* **label-link:** visually link external label with its target ([19cf179](https://github.com/simon100500/bpmn-js/commit/19cf179d886f9a1cc7027279ce3a08a59683de85))
+* **lasso-tool:** show outline around currently selected elements ([1844469](https://github.com/simon100500/bpmn-js/commit/1844469471359c7347343afc43b5466e34af6fd4))
+* **modeler:** add font size adjustment feature to toolbar ([9fa80c6](https://github.com/simon100500/bpmn-js/commit/9fa80c6174117493edb6fd9899e2fe6852a00a5d))
+* **modeler:** implement single start mode with toolbar and file handling ([4506e47](https://github.com/simon100500/bpmn-js/commit/4506e47a372cfba38e85999ae4880bb236e908eb))
+* **modeling:** add minimum dimensions for activities and update resizing rules ([002031a](https://github.com/simon100500/bpmn-js/commit/002031a29d17befc73dc80a68055176724e28815))
+* **modeling:** always place annotations on root element ([ca230c3](https://github.com/simon100500/bpmn-js/commit/ca230c39c4e7a5f6d32620c783e8748a0b89dd4a))
+* **modeling:** disable autoResize for annotation changes ([d2a9760](https://github.com/simon100500/bpmn-js/commit/d2a976034b3ae70fce40dd8febc18acac9d8aa8d)), closes [#2049](https://github.com/simon100500/bpmn-js/issues/2049)
+* **modeling:** enhance resizing behavior for external labels and groups ([5186e48](https://github.com/simon100500/bpmn-js/commit/5186e482100d4f88f105b7a79f5505f5f8d6b928))
+* **modeling:** keep global elements when deleting last participant ([d640a3c](https://github.com/simon100500/bpmn-js/commit/d640a3ce54fc30bdff70ccf5ee59ea6a54c1b890)), closes [#1676](https://github.com/simon100500/bpmn-js/issues/1676)
+* move visually enclosed artifacts with parents ([dcb8ac3](https://github.com/simon100500/bpmn-js/commit/dcb8ac31858b231fd17614ab019e45cc0d087a8f))
+* **Ordering:** always render annotations on top ([1108d9d](https://github.com/simon100500/bpmn-js/commit/1108d9de22ff55230279ea9e6ccdddd42b31409e))
+* **OutlineProvider:** return outline for an external label ([5034cb2](https://github.com/simon100500/bpmn-js/commit/5034cb29f796b03800deed21029a63a1e102827a))
+* **popup-menu:** sentence case titles and labels ([6b9ab1b](https://github.com/simon100500/bpmn-js/commit/6b9ab1b75b350e0fd1faf74b6b2fca751d5318e9)), closes [#2023](https://github.com/simon100500/bpmn-js/issues/2023)
+* position context pad according to last waypoint for connections ([#826](https://github.com/simon100500/bpmn-js/issues/826)) ([b6abc5d](https://github.com/simon100500/bpmn-js/commit/b6abc5dba880890e46859cf1e2ff731d15dc7efd))
+* prevent keyboard movement of boundary events without their host ([dfb8edf](https://github.com/simon100500/bpmn-js/commit/dfb8edf8aea15a8d5f06e027118ddbfadda4559f))
+* remove selection outline from connections ([#826](https://github.com/simon100500/bpmn-js/issues/826)) ([b6abc5d](https://github.com/simon100500/bpmn-js/commit/b6abc5dba880890e46859cf1e2ff731d15dc7efd))
+* remove touch interaction module ([9b2b6a6](https://github.com/simon100500/bpmn-js/commit/9b2b6a65d82117966e6b0da6537a1424bab7d6f2))
+* render event subprocess icons ([cfec0a9](https://github.com/simon100500/bpmn-js/commit/cfec0a9d5a59dd282eb1548d54b23887a9615e7e)), closes [#50](https://github.com/simon100500/bpmn-js/issues/50)
+* render markers as part of djs-visual ([3f2ec41](https://github.com/simon100500/bpmn-js/commit/3f2ec41204df49bb6063f0a6f465adfd00c64c93))
+* **search:** adjust scoring / factor in density ([14ced13](https://github.com/simon100500/bpmn-js/commit/14ced13a4aef1fc5742b38318d73f4e0c02a6728))
+* **search:** integrate with unified search ([8383966](https://github.com/simon100500/bpmn-js/commit/83839669bb8c9c6a52c436b8b25d518606db5094))
+* **search:** sort matches by location ([4789c1f](https://github.com/simon100500/bpmn-js/commit/4789c1ff4bbd73ec60866c682b0ccc0b5c0f048a))
+* support disabled entries in popup menu ([836c3fe](https://github.com/simon100500/bpmn-js/commit/836c3fef22229a05fa4df4eae1266a13f39f230a))
+* support modeling of gateway without marker ([b9d0ce3](https://github.com/simon100500/bpmn-js/commit/b9d0ce3e10a502c9209ccb93a3b78eb114d2a906)), closes [#2063](https://github.com/simon100500/bpmn-js/issues/2063)
+* update translations ([c5aea1f](https://github.com/simon100500/bpmn-js/commit/c5aea1f604197f3737bf7d82ea91387a209a95b4))
+
+
+### Bug Fixes
+
+* add accessible label to drill down button ([b4abfaa](https://github.com/simon100500/bpmn-js/commit/b4abfaa9d40e1763ca1499cdf68d89329d375b8b))
+* add outline module to viewer modules ([0d79ceb](https://github.com/simon100500/bpmn-js/commit/0d79ceb6fbb6a2dac884f224532ecc59477a0720)), closes [#2133](https://github.com/simon100500/bpmn-js/issues/2133)
+* auto-place elements vertically in sub-processes ([3153b08](https://github.com/simon100500/bpmn-js/commit/3153b083f99b12bc0786f75b2114c70ec4b3cea6)), closes [#2127](https://github.com/simon100500/bpmn-js/issues/2127)
+* **BaseViewer:** swap canvas and project logo ([e44e925](https://github.com/simon100500/bpmn-js/commit/e44e925964267376212dfed53ab603028c6f7c7d))
+* **BpmnRenderer:** return correct path shape for labels ([dc2998d](https://github.com/simon100500/bpmn-js/commit/dc2998d92459a62bc59d367ba30ac543a60154fc))
+* center task markers ([a0c4774](https://github.com/simon100500/bpmn-js/commit/a0c477410518b0263495cd29e72f140132f9280f))
+* center task markers ([09ead8c](https://github.com/simon100500/bpmn-js/commit/09ead8ceeee4f3ac55b3b1bbdbead7e9d6eae534))
+* **context-pad:** remove append preview on context pad close ([407a191](https://github.com/simon100500/bpmn-js/commit/407a191f7e76724ef75a472adef732711069be98)), closes [#2150](https://github.com/simon100500/bpmn-js/issues/2150)
+* correct sequence flow layout for corner boundary events ([547d901](https://github.com/simon100500/bpmn-js/commit/547d90113010d40a91f9f816c837b459a0ff5f73)), closes [#2270](https://github.com/simon100500/bpmn-js/issues/2270)
+* correct undo of pasted collapsed sub-process ([6159971](https://github.com/simon100500/bpmn-js/commit/615997168c811fe47fff230bd841c9b3e155dc29))
+* correctly remove vertical lanes ([df2ae05](https://github.com/simon100500/bpmn-js/commit/df2ae0560b7a17c9543043f6a6759ea1e540a821))
+* create hit boxes for vertical lanes ([0a2f759](https://github.com/simon100500/bpmn-js/commit/0a2f7598f0c054528240d17f1768ddb5ff1e7f55)), closes [#2093](https://github.com/simon100500/bpmn-js/issues/2093)
+* do not set label color if missing DI ([0257bf4](https://github.com/simon100500/bpmn-js/commit/0257bf46ea54afe6f0bc5d5feca191fb937f9079))
+* do not set label on planes ([4451857](https://github.com/simon100500/bpmn-js/commit/4451857cbd0d409c6668fea25cb9e61eecec878b)), closes [#2033](https://github.com/simon100500/bpmn-js/issues/2033)
+* **draw:** don't fill multiple parallel events ([ec2ee69](https://github.com/simon100500/bpmn-js/commit/ec2ee691dd05ab996ee09dff5c848162f99021aa))
+* **draw:** use correct Types in `BpmnRenderUtil` ([#2036](https://github.com/simon100500/bpmn-js/issues/2036)) ([1c428f6](https://github.com/simon100500/bpmn-js/commit/1c428f6872c033b1d13999499c8729f32638ab25)), closes [#2028](https://github.com/simon100500/bpmn-js/issues/2028)
+* **drilldown:** do not reset viewport on collaboration removal ([4cdcb6f](https://github.com/simon100500/bpmn-js/commit/4cdcb6f7c75489303b2d2ceec44f2bb2971c3c98))
+* **drilldown:** gracefully handle missing BPMNDiagram#plane ([a66d850](https://github.com/simon100500/bpmn-js/commit/a66d85018a71af016210e0a5696d8c7e1fab7304))
+* **drilldown:** handle missing process (parent) DI elements ([857415f](https://github.com/simon100500/bpmn-js/commit/857415ff465296a73ff6339d342011c3360665e2))
+* empty whitespaces label in group ([303ca88](https://github.com/simon100500/bpmn-js/commit/303ca886154152ecc9e6ec4ceb193c7cba2cf1cf)), closes [#2231](https://github.com/simon100500/bpmn-js/issues/2231)
+* ensure all error translations are collected ([72fcec9](https://github.com/simon100500/bpmn-js/commit/72fcec91dc519ce8b4b3c564f239fae372fc7ec0))
+* ensure popup menu keyboard navigation accounts for entry grouping ([aab6a88](https://github.com/simon100500/bpmn-js/commit/aab6a885d5359a1ea6c7af5508569670c3f182b4))
+* error info use tagged template ([829989e](https://github.com/simon100500/bpmn-js/commit/829989ed888b866fbb0edcae248414a85ea6b70d))
+* event references are not lost when switching elements ([ea35d60](https://github.com/simon100500/bpmn-js/commit/ea35d6085509f3313daa589895b6786b83207185))
+* explicitly set `isInterrupting` for events in the replace menu ([8e11411](https://github.com/simon100500/bpmn-js/commit/8e1141125c69e93d357dc4515a574d62e21bab94))
+* flow text alignment issue when placed text annotationt ([#2241](https://github.com/simon100500/bpmn-js/issues/2241)) ([e5f1637](https://github.com/simon100500/bpmn-js/commit/e5f1637e7e0a1500216179ade3a4630c8c79d26a))
+* generate types for main entry point ([986e2bb](https://github.com/simon100500/bpmn-js/commit/986e2bb51ea301e6e0df56f3606a27424fb90179))
+* **import:** handle missing BPMNDiagram#plane ([bc24a60](https://github.com/simon100500/bpmn-js/commit/bc24a6092d0368cf988a3e894b2de6845324c2d4))
+* keep direction when collapsing pools ([90c513c](https://github.com/simon100500/bpmn-js/commit/90c513c770506e5c04d7fa50d3159ada7b17a618)), closes [#2208](https://github.com/simon100500/bpmn-js/issues/2208)
+* label text visible while editing ([988cb29](https://github.com/simon100500/bpmn-js/commit/988cb29f50218d0bc758fbe2ffe6416192251d8e))
+* **label-link:** only draw links for currently selected elements ([b3064e8](https://github.com/simon100500/bpmn-js/commit/b3064e8dd29ecc3192f5288dd4ef6dd855ced8af))
+* lane resize constraints for horizontal and vertical lanes ([7a137cc](https://github.com/simon100500/bpmn-js/commit/7a137cc502687763965059b1aa7f8a5792d177ee)), closes [#2209](https://github.com/simon100500/bpmn-js/issues/2209)
+* **modeler:** adjust toolbar layout for single start mode ([bd7d2d7](https://github.com/simon100500/bpmn-js/commit/bd7d2d7a3dd318461f533e9856dab606cbd5a7b4))
+* **Modeler:** re-add outline feature ([9f41690](https://github.com/simon100500/bpmn-js/commit/9f41690c22cee6f64c8506313487ee45d108a86e))
+* **modeling:** do not remove connection that is being created ([3578990](https://github.com/simon100500/bpmn-js/commit/357899036a40ca29c0a8a51e858e21f139d69b0d)), closes [#2068](https://github.com/simon100500/bpmn-js/issues/2068)
+* **outline:** correct size for end event ([8b18beb](https://github.com/simon100500/bpmn-js/commit/8b18bebe7f5137179145dd022e655a8e3e295768)), closes [#2015](https://github.com/simon100500/bpmn-js/issues/2015)
+* **outline:** customize call activity outline ([07bf015](https://github.com/simon100500/bpmn-js/commit/07bf015baa73e7f8ce43b4d7ea459ea33e715962)), closes [#2167](https://github.com/simon100500/bpmn-js/issues/2167)
+* **outline:** external label resize ([c9f4c83](https://github.com/simon100500/bpmn-js/commit/c9f4c8379578e59604e81e7a2fb0d1d99f26ece3)), closes [#2001](https://github.com/simon100500/bpmn-js/issues/2001)
+* pasting compensation activity without boundary event ([4359f18](https://github.com/simon100500/bpmn-js/commit/4359f184098a809a1080384a72addd440cb3b74f)), closes [#2070](https://github.com/simon100500/bpmn-js/issues/2070)
+* **popup-menu:** correct various accessibility issues ([cf66bc2](https://github.com/simon100500/bpmn-js/commit/cf66bc286fa9ec28df9e3a8cca57a63738ed4003))
+* **popup-menu:** render on top ([06838aa](https://github.com/simon100500/bpmn-js/commit/06838aa80cc63364c133e6ce4094f1fd6916f123))
+* prevent access of non-existing connection bounds ([3501c28](https://github.com/simon100500/bpmn-js/commit/3501c2806bddacfe59a4cede677bb59eb33c9057))
+* properly handle text annotations during during sub-process operations ([969db73](https://github.com/simon100500/bpmn-js/commit/969db7325aa0e3c9586a8bb6451074d76aa3b52e))
+* re-add outline in viewer and removed from modeler ([58937f2](https://github.com/simon100500/bpmn-js/commit/58937f25e93d2d79f303be429fbdb3123ecc63e1))
+* re-add outline in viewer and removed from modeler ([fbcb2a9](https://github.com/simon100500/bpmn-js/commit/fbcb2a9d3c1df4a372b98c0218870ee29b74e160))
+* remove `AdHocSubProcess#cancelRemainingInstances` default value ([4550765](https://github.com/simon100500/bpmn-js/commit/45507657de9eb1dd9b4682150d173d5cba900920))
+* remove default start event for ad-hoc subprocess ([#2295](https://github.com/simon100500/bpmn-js/issues/2295)) ([3177395](https://github.com/simon100500/bpmn-js/commit/3177395323d7dba4d11e1d466d7f53460a202f91))
+* remove incorrect attribute in replace menu ([ab37581](https://github.com/simon100500/bpmn-js/commit/ab37581d2d990736b9ea52debc0f7cdca3915483))
+* **replace-menu:** keep existing loop characteristics ([#2251](https://github.com/simon100500/bpmn-js/issues/2251)) ([e937bd9](https://github.com/simon100500/bpmn-js/commit/e937bd9c035f9f10a4ff461f7902c8946fc66378))
+* reposition popup menu if under axis ([4f06be6](https://github.com/simon100500/bpmn-js/commit/4f06be63d712ffb32f2d4e64214d78e0ec3d72d9))
+* revert re-add outline in viewer and removed from modeler ([71a9d96](https://github.com/simon100500/bpmn-js/commit/71a9d969e186b391bee8886b72bbe6927e6796ab))
+* revert re-add outline in viewer and removed from modeler ([f0d3227](https://github.com/simon100500/bpmn-js/commit/f0d3227ebbe05a19985757cdec5a7d1eab47ea0c))
+* revert selection outline removal for connections ([647dcfc](https://github.com/simon100500/bpmn-js/commit/647dcfca28ba8f325f14fe9aa30dceae22424211))
+* **search:** correct various minor issues ([72996b3](https://github.com/simon100500/bpmn-js/commit/72996b3d4f72124202b51ba28bd80f3145c86c91))
+* **search:** do not suggest subprocess planes ([f470cd5](https://github.com/simon100500/bpmn-js/commit/f470cd5722f4d30bf56c743d768dcd8863aee341)), closes [#2143](https://github.com/simon100500/bpmn-js/issues/2143)
+* **search:** handle elements without label ([58d7d7a](https://github.com/simon100500/bpmn-js/commit/58d7d7a30b16961a6649db82778018c1705f32d4)), closes [#2232](https://github.com/simon100500/bpmn-js/issues/2232)
+* show delete action for labels ([08b657a](https://github.com/simon100500/bpmn-js/commit/08b657a598f191890015bf1d29f96c83f49880ca)), closes [#2163](https://github.com/simon100500/bpmn-js/issues/2163)
+* show modeling feedback error for data objects ([d348b50](https://github.com/simon100500/bpmn-js/commit/d348b50e154d815ebfc1aa88bbe1e58e2a080c82))
+* **space-tool:** move artifacts when a participant is resized by space tool ([78d0846](https://github.com/simon100500/bpmn-js/commit/78d0846149df00934f0c9e8cdef2b51e40ed8e63))
+* support core replace in compensation behavior ([11fef5f](https://github.com/simon100500/bpmn-js/commit/11fef5f120c94e4d7294f711ace2472dd2a14be9)), closes [#2073](https://github.com/simon100500/bpmn-js/issues/2073)
+* support rendering of gateway without marker ([b100cdf](https://github.com/simon100500/bpmn-js/commit/b100cdfa0b2951cc9b3d5542ebd03cb0d9bfd2cb))
+* typo ([47fd319](https://github.com/simon100500/bpmn-js/commit/47fd3197ab529ad4f9cdb1c235ef309348e69909))
+* use consistent capitalization in test descriptions ([04b5138](https://github.com/simon100500/bpmn-js/commit/04b5138bdd9d3adf32b6becd266354852b04a587))
+* **viewer:** remove outline module from default modules ([583195a](https://github.com/simon100500/bpmn-js/commit/583195a4fa3a88f9f4ba21d79f733952a43f56cb)), closes [#2135](https://github.com/simon100500/bpmn-js/issues/2135)
+
+
+### Miscellaneous Chores
+
+* merge main to develop ([714cde9](https://github.com/simon100500/bpmn-js/commit/714cde92126ae1884631acf1edd9017ae34e4c0a))
+
 ### 18.15.0
 
 * `FEAT`: show outline around lasso-selected elements ([#173](https://github.com/bpmn-io/bpmn-js/issues/173), [bpmn-io/diagram-js#1021](https://github.com/bpmn-io/diagram-js/pull/1021))
