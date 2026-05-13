@@ -111,4 +111,24 @@ describe('draw - TextRenderer', function() {
 
   });
 
+
+  describe('font size API', function() {
+
+    beforeEach(bootstrapViewer(diagramXML));
+
+    it('should update default and external font size', inject(function(textRenderer) {
+
+      // when
+      textRenderer.setFontSize(18);
+
+      var defaultStyle = textRenderer.getDefaultStyle();
+      var externalStyle = textRenderer.getExternalStyle();
+
+      // then
+      expect(defaultStyle.fontSize).to.eql(18);
+      expect(externalStyle.fontSize).to.eql(17);
+    }));
+
+  });
+
 });

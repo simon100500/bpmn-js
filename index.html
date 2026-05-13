@@ -152,6 +152,25 @@
       word-break: break-word;
     }
 
+    .toolbar-setting {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-main);
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .toolbar-setting input {
+      width: 72px;
+      padding: 8px 10px;
+      border: 1px solid #d0d7de;
+      border-radius: 10px;
+      background: #fff;
+      color: inherit;
+      font: inherit;
+    }
+
     @media print {
       html,
       body {
@@ -224,6 +243,10 @@
     <div class="toolbar">
       <button id="open-button" class="toolbar-button secondary" type="button">Загрузить BPMN</button>
       <button id="save-button" class="toolbar-button" type="button">Скачать BPMN</button>
+      <label class="toolbar-setting" for="font-size-input">
+        <span>Шрифт</span>
+        <input id="font-size-input" type="number" min="8" max="48" step="1" value="12" />
+      </label>
       <input id="file-input" type="file" accept=".bpmn,.xml,text/xml,application/xml" hidden />
       <div id="file-name" class="toolbar-status">diagram.bpmn</div>
     </div>
@@ -304,15 +327,18 @@
     const canvas = document.getElementById('canvas');
     const openButton = document.getElementById('open-button');
     const saveButton = document.getElementById('save-button');
+    const fontSizeInput = document.getElementById('font-size-input');
     const fileInput = document.getElementById('file-input');
     const fileNameNode = document.getElementById('file-name');
     const statusNode = document.getElementById('status');
+    const fontSizeStorageKey = 'setl-bpmn-font-size';
 
     const modeler = new BpmnJS({
       container: canvas
     });
 
     let currentFileName = 'diagram.bpmn';
+    let currentFontSize = readStoredFontSize();
     let statusTimer;
 
     function showStatus(message) {
@@ -327,6 +353,7 @@
 
     async function openDiagram() {
       try {
+        applyFontSize(currentFontSize);
         await modeler.importXML(initialDiagram);
         const canvasApi = modeler.get('canvas');
         canvasApi.zoom('fit-viewport');
@@ -336,6 +363,39 @@
         console.error('Failed to load BPMN diagram', error);
         showStatus('Не удалось загрузить стартовую диаграмму');
       }
+    }
+
+    function normalizeFontSize(value) {
+      const numericValue = Number.parseInt(value, 10);
+
+      if (Number.isNaN(numericValue)) {
+        return 12;
+      }
+
+      return Math.max(8, Math.min(48, numericValue));
+    }
+
+    function readStoredFontSize() {
+      try {
+        return normalizeFontSize(window.localStorage.getItem(fontSizeStorageKey));
+      } catch {
+        return 12;
+      }
+    }
+
+    function persistFontSize(fontSize) {
+      try {
+        window.localStorage.setItem(fontSizeStorageKey, String(fontSize));
+      } catch {
+        // Ignore storage errors and keep the setting for the current session.
+      }
+    }
+
+    function applyFontSize(value) {
+      currentFontSize = normalizeFontSize(value);
+      fontSizeInput.value = String(currentFontSize);
+      modeler.setFontSize(currentFontSize);
+      persistFontSize(currentFontSize);
     }
 
     function downloadFile(fileName, content, type) {
@@ -370,6 +430,7 @@
       reader.onload = async (loadEvent) => {
         try {
           const xml = loadEvent.target.result;
+          applyFontSize(currentFontSize);
           await modeler.importXML(xml);
           modeler.get('canvas').zoom('fit-viewport');
           currentFileName = file.name || 'diagram.bpmn';
@@ -385,6 +446,15 @@
       fileInput.value = '';
     });
 
+    fontSizeInput.addEventListener('change', () => {
+      applyFontSize(fontSizeInput.value);
+      showStatus(`Размер шрифта: ${currentFontSize}px`);
+    });
+
+    fontSizeInput.addEventListener('blur', () => {
+      fontSizeInput.value = String(currentFontSize);
+    });
+
     saveButton.addEventListener('click', async () => {
       try {
         const result = await modeler.saveXML({ format: true });
@@ -397,6 +467,7 @@
       }
     });
 
+    applyFontSize(currentFontSize);
     openDiagram();
 
     window.addEventListener('resize', () => {
