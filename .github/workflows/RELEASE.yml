@@ -4,6 +4,7 @@ on:
     branches:
       - main
       - develop
+
 jobs:
   release_please:
     outputs:
@@ -15,11 +16,11 @@ jobs:
 
     runs-on: ubuntu-latest
     steps:
-      - uses: google-github-actions/release-please-action@v4
+      - uses: googleapis/release-please-action@v4
         id: release
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          target-branch: main
+          target-branch: ${{ github.ref_name }}
           release-type: node
 
   publish:
@@ -30,6 +31,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          ref: ${{ needs.release_please.outputs.tag }}
       - name: Use Node.js
         uses: actions/setup-node@v6
         with:
